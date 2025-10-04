@@ -1,0 +1,7 @@
+[package]
+name = "trust_scanner"
+version = "0.1.0"
+authors = ["0x6a80ea2d131e6b6b5809173cad349bd2a9fc6496d31459be76cece265122e5b5"]
+
+[addresses]
+Std = "0x1"

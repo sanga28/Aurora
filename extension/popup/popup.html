@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Aurora Trust Layer</title>
+  <style>
+    /* --- Overall Layout --- */
+    body {
+      width: 380px;
+      height: 480px;
+      font-family: Inter, sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* 🔒 No scrollbars */
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 0;
+      background: #101010;
+      border-bottom: 1px solid #1c1c1c;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    header img {
+      width: 28px;
+      height: 28px;
+    }
+
+    h1 {
+      font-size: 15px;
+      margin: 0;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    nav.tabs {
+      display: flex;
+      justify-content: space-around;
+      background: #121212;
+      border-bottom: 1px solid #1c1c1c;
+    }
+
+    nav.tabs button {
+      flex: 1;
+      padding: 8px 0;
+      background: transparent;
+      color: #ccc;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    nav.tabs button.active {
+      color: #ffffff;
+      border-bottom: 2px solid #ffffff;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .tab-section {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .tab-section.active {
+      display: flex;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      background: #141414;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #ffffff;
+    }
+
+    button {
+      width: 100%;
+      background: #ffffff;
+      color: #000;
+      border: none;
+      padding: 9px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    #result {
+      margin-top: 10px;
+      font-size: 13px;
+      padding: 10px;
+      background: #111;
+      border-radius: 8px;
+      border: 1px solid #1f1f1f;
+      min-height: 40px;
+      color: #bbb;
+    }
+
+    #recent-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+      flex-grow: 1;
+      overflow-y: hidden;
+    }
+
+    #recent-list li {
+      border-bottom: 1px solid #1c1c1c;
+      padding: 5px 0;
+      color: #aaa;
+    }
+
+    .setting-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #1c1c1c;
+    }
+
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .setting-info span {
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #444;
+      transition: 0.3s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #00ff88;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #ffffff;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      padding: 6px;
+      border-top: 1px solid #1c1c1c;
+      background: #101010;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="../assets/icon128.png" alt="Aurora Logo" />
+    <h1>Aurora Trust Layer</h1>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="dashboard">🧠 Dashboard</button>
+    <button class="tab" data-tab="checker">🔍 Checker</button>
+    <button class="tab" data-tab="settings">⚙️ Settings</button>
+  </nav>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="dashboard" class="tab-section active">
+      <h3>Recent Activity</h3>
+      <ul id="recent-list"><li>No activity yet.</li></ul>
+    </section>
+
+    <!-- Checker -->
+    <section id="checker" class="tab-section">
+      <h3>Contract Checker</h3>
+      <input id="address" placeholder="Enter contract address..." />
+      <button id="check">Check Trust Score</button>
+      <div id="result"></div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="tab-section">
+      <h3>Settings</h3>
+
+      <div class="setting-card">
+        <label class="switch">
+          <input type="checkbox" id="auto-detect" />
+          <span class="slider"></span>
+        </label>
+        <div class="setting-info">
+          <span>Auto Detection</span>
+          <small>Automatically check contracts on visited pages.</small>
+        </div>
+      </div>
+
+      <div class="setting-card">
+        <label class="switch">
+          <input type="checkbox" id="notifications" />
+          <span class="slider"></span>
+        </label>
+        <div class="setting-info">
+          <span>Notifications</span>
+          <small>Show alerts for risky contracts.</small>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>🌌 Aurora | Powered by Aptos</footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
