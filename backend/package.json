@@ -10,24 +10,24 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-<<<<<<< HEAD
+
     "@mysten/sui.js": "^0.54.1",
-=======
->>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
+
+
     "aptos": "^1.21.0",
     "axios": "^1.12.2",
     "bip39": "^3.1.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "ethers": "^6.15.0",
-<<<<<<< HEAD
+
     "express": "^5.1.0",
     "node-fetch": "^3.3.2",
     "sui": "^1.0.0",
     "uuid": "^9.0.1"
-=======
+
     "express": "^5.1.0"
->>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
+
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
