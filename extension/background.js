@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // background.js
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -26,5 +27,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
 
     return true; // keep the message channel open for async sendResponse
+=======
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("Aurora Extension Installed 🌌");
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getTrustScore") {
+    // Handle request from popup or content script
+    console.log("Fetching trust score for:", message.address);
+    sendResponse({ score: Math.floor(Math.random() * 100) }); // Simulated response
+>>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
   }
 });

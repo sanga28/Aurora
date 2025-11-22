@@ -4,7 +4,11 @@ export async function createWallet() {
   const res = await fetch(`${API_URL}/create`, { method: "POST" });
   return res.json();
 }
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
 export async function getBalance(address) {
   const res = await fetch(`${API_URL}/balance/${address}`);
   return res.json();

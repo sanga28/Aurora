@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // contentScript.js
 
 // Detect valid 64-char SUI addresses
@@ -32,3 +33,23 @@ if (detected.length > 0 && isDapp) {
     }
   );
 }
+=======
+// Listen for messages from the popup
+chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+  if (msg.type === "CONNECT_WALLET") {
+    if (window.aptos) {
+      try {
+        const account = await window.aptos.connect();
+        sendResponse({ success: true, address: account.address });
+      } catch (err) {
+        sendResponse({ success: false, error: err.message });
+      }
+    } else {
+      sendResponse({ success: false, error: "No Aptos wallet detected" });
+    }
+  }
+
+  // Required to use async sendResponse
+  return true;
+});
+>>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee

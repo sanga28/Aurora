@@ -1,6 +1,7 @@
 [package]
 name = "trust_scanner"
 version = "0.1.0"
+<<<<<<< HEAD
 
 [dependencies]
 Sui = { git = "https://github.com/MystenLabs/sui.git",
@@ -9,3 +10,10 @@ Sui = { git = "https://github.com/MystenLabs/sui.git",
 
 [addresses]
 trust_scanner = "0x6a80ea2d131e6b6b5809173cad349bd2a9fc6496d31459be76cece265122e5b5"
+=======
+authors = ["0x6a80ea2d131e6b6b5809173cad349bd2a9fc6496d31459be76cece265122e5b5"]
+
+[addresses]
+Std = "0x1"
+ 
+>>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee

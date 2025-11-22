@@ -2,7 +2,11 @@
 node_modules/
 .env
 dist/
+<<<<<<< HEAD
 build/
+=======
+build/ 
+>>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
 
 # VSCode
 .vscode/
