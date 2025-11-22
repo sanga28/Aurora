@@ -17,9 +17,8 @@ function InputPanel() {
     return null;
   };
 
-
   // ------------------------------------------
-  // CONNECT WALLET (supports all)
+  // CONNECT WALLET
   // ------------------------------------------
   const connectWallet = async () => {
     const walletAPI = detectWallet();
@@ -41,9 +40,6 @@ function InputPanel() {
 
         case "suiet":
         case "surf":
-          accounts = await walletAPI.api.requestAccounts();
-          break;
-
         case "slush":
           accounts = await walletAPI.api.requestAccounts();
           break;
@@ -58,9 +54,8 @@ function InputPanel() {
     }
   };
 
-
   // ------------------------------------------
-  // SCAN CONTRACT (LOCAL BACKEND)
+  // SCAN CONTRACT USING BACKEND (ENV)
   // ------------------------------------------
   const handleScan = async () => {
     if (!contractAddress) {
@@ -71,7 +66,9 @@ function InputPanel() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/contract/scan", {
+      const backend = process.env.REACT_APP_BACKEND_URL;
+
+      const res = await fetch(`${backend}/api/contract/scan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -81,8 +78,8 @@ function InputPanel() {
       });
 
       const text = await res.text();
-
       let data;
+
       try {
         data = JSON.parse(text);
       } catch (e) {
