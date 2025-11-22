@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 function InputPanel() {
   const [wallet, setWallet] = useState(null);
@@ -6,72 +6,88 @@ function InputPanel() {
   const [scanResult, setScanResult] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Your deployed Move module address
-  const TRUSTSCANNER_MODULE =
-    "0x6a80ea2d131e6b6b5809173cad349bd2a9fc6496d31459be76cece265122e5b5";
+  // ------------------------------------------
+  // AUTO-DETECT ANY SUI WALLET
+  // ------------------------------------------
+  const detectWallet = () => {
+    if (window.suiWallet) return { type: "suiWallet", api: window.suiWallet };
+    if (window.suiet) return { type: "suiet", api: window.suiet };
+    if (window.surfWallet) return { type: "surf", api: window.surfWallet };
+    if (window.slush) return { type: "slush", api: window.slush };
+    return null;
+  };
 
-  // Load backend wallet info for dev/testing
-  useEffect(() => {
-    const fetchBackendWallet = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/wallet");
-        const data = await res.json();
-        if (data?.address) setWallet({ address: data.address });
-      } catch (err) {
-        console.error("Backend wallet fetch failed:", err);
-      }
-    };
-    fetchBackendWallet();
-  }, []);
 
-  // Connect Aptos wallet
+  // ------------------------------------------
+  // CONNECT WALLET (supports all)
+  // ------------------------------------------
   const connectWallet = async () => {
-    if (!window.aptos) return alert("No Aptos wallet detected (Petra/Martian).");
+    const walletAPI = detectWallet();
+
+    if (!walletAPI) {
+      alert("❌ No Sui-compatible wallet detected.");
+      return;
+    }
+
     try {
-      const res = await window.aptos.connect();
-      setWallet({ address: res.address });
+      let accounts;
+
+      switch (walletAPI.type) {
+        case "suiWallet":
+          accounts = await walletAPI.api.request({
+            method: "sui_requestAccounts",
+          });
+          break;
+
+        case "suiet":
+        case "surf":
+          accounts = await walletAPI.api.requestAccounts();
+          break;
+
+        case "slush":
+          accounts = await walletAPI.api.requestAccounts();
+          break;
+
+        default:
+          throw new Error("Unsupported wallet API");
+      }
+
+      setWallet({ address: accounts[0], source: walletAPI.type });
     } catch (err) {
       alert("Wallet connection failed: " + err.message);
     }
   };
 
-  // Store scan score on-chain using Move module
-  const storeScanOnChain = async (contractAddr, score) => {
-    if (!window.aptos) return null;
 
-    // Pad address to 64 hex chars
-    if (contractAddr.startsWith("0x")) {
-      contractAddr = "0x" + contractAddr.slice(2).padStart(64, "0");
-    }
-
-    try {
-      const payload = {
-        type: "entry_function_payload",
-        function: `${TRUSTSCANNER_MODULE}::TrustScanner::store_scan_result`,
-        type_arguments: [],
-        arguments: [contractAddr, score],
-      };
-      const tx = await window.aptos.signTransaction({ payload });
-      const result = await window.aptos.submitTransaction(tx);
-      await window.aptos.waitForTransaction(result.hash);
-      return result.hash;
-    } catch (err) {
-      console.error("Failed to store scan on-chain:", err);
-      return null;
-    }
-  };
-
-  // Scan via backend
+  // ------------------------------------------
+  // SCAN CONTRACT (LOCAL BACKEND)
+  // ------------------------------------------
   const handleScan = async () => {
-    if (!contractAddress) return alert("Enter a contract address to scan.");
+    if (!contractAddress) {
+      alert("Enter a Sui Object ID / Package ID.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Backend analysis
-      const res = await fetch(
-        `http://localhost:5000/api/contract/analyze/${contractAddress}`
-      );
-      const data = await res.json();
+      const res = await fetch("http://localhost:5000/api/contract/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contractAddress,
+          requesterWallet: wallet?.address || "unknown",
+        }),
+      });
+
+      const text = await res.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("Backend returned HTML instead of JSON:\n" + text);
+      }
 
       if (!data.success) {
         setScanResult(`❌ Error: ${data.error}`);
@@ -79,18 +95,31 @@ function InputPanel() {
         return;
       }
 
-      const score = data.analysis.score || 0;
+      const manifest = data.manifest;
 
-      // Optional: store on-chain if wallet connected
-      let txHash = null;
-      if (wallet && window.aptos) {
-        txHash = await storeScanOnChain(contractAddress, score);
-      }
+      const formatted = `
+✅ Scan Complete
 
-      setScanResult(
-        `✅ Analysis Result:\n${JSON.stringify(data.analysis, null, 2)}\n\n` +
-          (txHash ? `Txn Hash: ${txHash}` : "Scan not stored on-chain")
-      );
+📦 Trust Score: ${manifest.trustScore}
+
+⚠ Findings:
+${JSON.stringify(manifest.findings, null, 2)}
+
+---------------------------
+🐋 WALRUS STORAGE (SLUSH)
+---------------------------
+Snapshot CID: ${manifest.snapshotCID}
+Summary CID:  ${manifest.summaryCID}
+Full CID:     ${manifest.fullCID}
+Manifest CID: ${data.manifestCID}
+
+---------------------------
+🔏 NAUTILUS ATTESTATION
+---------------------------
+${JSON.stringify(manifest.attestation, null, 2)}
+`;
+
+      setScanResult(formatted);
     } catch (err) {
       setScanResult(`❌ ${err.message}`);
     }
@@ -98,6 +127,9 @@ function InputPanel() {
     setLoading(false);
   };
 
+  // ------------------------------------------
+  // STYLES
+  // ------------------------------------------
   const styles = {
     container: {
       backgroundColor: "#000",
@@ -109,7 +141,6 @@ function InputPanel() {
       boxShadow: "0 0 25px rgba(255,255,255,0.1)",
       fontFamily: "Inter, sans-serif",
       textAlign: "center",
-      overflow: "hidden",
     },
     input: {
       padding: 10,
@@ -119,54 +150,49 @@ function InputPanel() {
       color: "#fff",
       width: "100%",
       marginTop: 12,
-      outline: "none",
     },
     button: {
       backgroundColor: "#fff",
       color: "#000",
-      border: "1px solid #fff",
       borderRadius: 8,
       padding: 10,
+      marginTop: 15,
+      width: "100%",
       fontWeight: 600,
       cursor: "pointer",
-      width: "100%",
-      marginTop: 15,
-      transition: "all 0.3s ease",
     },
     textarea: {
       marginTop: 15,
       width: "100%",
-      height: 180,
-      borderRadius: 8,
-      padding: 10,
+      height: 220,
       backgroundColor: "#111",
       color: "#0f0",
       fontFamily: "monospace",
       fontSize: 12,
+      padding: 10,
+      borderRadius: 8,
       border: "1px solid #fff",
-      overflow: "hidden",
       whiteSpace: "pre-wrap",
-      resize: "none",
     },
   };
 
   return (
     <div style={styles.container}>
-      <h3>TrustScanner Dashboard</h3>
+      <h3>TrustScanner Dashboard (Sui)</h3>
 
       {wallet ? (
         <p style={{ fontSize: 12, color: "#aaa" }}>
-          Connected Wallet: {wallet.address.slice(0, 10)}...
+          Connected ({wallet.source}): {wallet.address.slice(0, 12)}...
         </p>
       ) : (
         <button style={styles.button} onClick={connectWallet}>
-          Connect Wallet 🔗
+          Connect Sui Wallet 🔗
         </button>
       )}
 
       <input
         style={styles.input}
-        placeholder="Enter Contract Address"
+        placeholder="Enter Sui Object ID / Package ID"
         value={contractAddress}
         onChange={(e) => setContractAddress(e.target.value)}
       />
@@ -175,7 +201,9 @@ function InputPanel() {
         {loading ? "Scanning..." : "Scan Contract 🔍"}
       </button>
 
-      {scanResult && <textarea style={styles.textarea} readOnly value={scanResult} />}
+      {scanResult && (
+        <textarea style={styles.textarea} readOnly value={scanResult} />
+      )}
     </div>
   );
 }

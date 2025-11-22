@@ -4,6 +4,7 @@ import InputCard from "./components/InputPanel";
 import ResultPanel from "./components/ResultPanel";
 import Footer from "./components/Footer";
 import "./styles.css";
+import SlushStatusPanel from "./components/SlushStatusPanel";
 import { scanContract } from "./api";
 
 function App() {

@@ -1,52 +1,44 @@
 import axios from "axios";
 
-<<<<<<< HEAD
-// Base backend URL (Pair 1 server)
+// Backend URL from Netlify / Vercel environment variables
 const API = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL, // NO /api/contract here
+  baseURL: process.env.REACT_APP_BACKEND_URL + "/api/contract",
 });
 
-// 🔥 Trigger a TrustScanner scan (calls Pair 1 → uses Pair 2 engine)
+/* ----------------------------------------------------------
+   🔥 Trigger a TrustScanner Scan
+   Calls: POST /api/contract/scan
+---------------------------------------------------------- */
 export const scanContract = async (address, walletAddress = "frontend") => {
-  const res = await API.post("/api/scan", {
+  const response = await API.post("/scan", {
     contractAddress: address,
     requesterWallet: walletAddress,
   });
 
-  return res.data;
+  return response.data;
 };
 
-// Retrieve decrypted full report (Pair 1 → Pair 2 decrypt handler)
+/* ----------------------------------------------------------
+   🔐 Decrypt full report (Seal)
+   Calls: POST /api/contract/decrypt
+---------------------------------------------------------- */
 export const decryptReport = async (fullCID, sealPolicyId, wallet) => {
-  const res = await API.post("/api/request-decrypt", {
+  const response = await API.post("/decrypt", {
     fullCID,
     sealPolicyId,
     walletAddress: wallet,
   });
 
-  return res.data;
+  return response.data;
 };
 
-// Verify attestation (Pair 1 → Pair 2 attestation verify)
+/* ----------------------------------------------------------
+   🛡 Verify Nautilus Attestation
+   Calls: POST /api/contract/verify-attestation
+---------------------------------------------------------- */
 export const verifyAttestation = async (attestation) => {
-  const res = await API.post("/api/verify-attestation", { attestation });
-=======
-const API = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL + "/api/contract",
-});
-
-export const createWallet = async () => {
-  const res = await API.get("/create");
-  return res.data;
+  const response = await API.post("/verify-attestation", { attestation });
+  return response.data;
 };
 
-export const getBalance = async (address) => {
-  const res = await API.get(`/balance/${address}`);
-  return res.data;
-};
-
-export const executeContract = async (data) => {
-  const res = await API.post("/execute", data);
->>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
-  return res.data;
-};
+export default API;
