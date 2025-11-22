@@ -1,0 +1,11 @@
+[package]
+name = "trust_scanner"
+version = "0.1.0"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git",
+        subdir = "crates/sui-framework/packages/sui-framework",
+        rev = "testnet" }
+
+[addresses]
+trust_scanner = "0x6a80ea2d131e6b6b5809173cad349bd2a9fc6496d31459be76cece265122e5b5"

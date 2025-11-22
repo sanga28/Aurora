@@ -1,0 +1,18 @@
+{
+  "scanId": "70df8b1a-35ca-4299-89c7-e5d100308c99",
+  "contract": "0xDEADBEEF",
+  "trustScore": 75,
+  "findings": [
+    {
+      "id": "OWNER_PRESENT",
+      "severity": "medium",
+      "details": "Contract owner: 0xADMIN"
+    },
+    {
+      "id": "SUSPICIOUS_MODULES",
+      "severity": "medium",
+      "details": "Suspicious modules: owner_manager"
+    }
+  ],
+  "timestamp": 1763828110268
+}

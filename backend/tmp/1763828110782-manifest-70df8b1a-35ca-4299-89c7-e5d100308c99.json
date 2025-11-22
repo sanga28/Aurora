@@ -1,0 +1,33 @@
+{
+  "scanId": "70df8b1a-35ca-4299-89c7-e5d100308c99",
+  "snapshotCID": "mockcid:C:\\Users\\sanga\\OneDrive\\Desktop\\Aurora_2\\backend\\tmp\\1763828110268-snapshot-70df8b1a-35ca-4299-89c7-e5d100308c99.json",
+  "summaryCID": "mockcid:C:\\Users\\sanga\\OneDrive\\Desktop\\Aurora_2\\backend\\tmp\\1763828110271-summary-70df8b1a-35ca-4299-89c7-e5d100308c99.json",
+  "fullCID": "mockcid:C:\\Users\\sanga\\OneDrive\\Desktop\\Aurora_2\\backend\\tmp\\1763828110274-full-70df8b1a-35ca-4299-89c7-e5d100308c99.enc",
+  "sealPolicyId": "policy:7429b57d-f76c-4be7-8ddc-16e815984768",
+  "trustScore": 75,
+  "findings": [
+    {
+      "id": "OWNER_PRESENT",
+      "severity": "medium",
+      "details": "Contract owner: 0xADMIN"
+    },
+    {
+      "id": "SUSPICIOUS_MODULES",
+      "severity": "medium",
+      "details": "Suspicious modules: owner_manager"
+    }
+  ],
+  "attestation": {
+    "jobId": "0d996fca-7a5a-4533-94a3-4e243367183f",
+    "start": 1763828108779,
+    "end": 1763828110779,
+    "jobSpecHash": "0063f03008bbb38db2470b5ba0a1927b8a28af48dd1a64a8849b02e9c38ffcfa",
+    "outputs": {
+      "summaryCID": "mockcid:C:\\Users\\sanga\\OneDrive\\Desktop\\Aurora_2\\backend\\tmp\\1763828110271-summary-70df8b1a-35ca-4299-89c7-e5d100308c99.json",
+      "fullCID": "mockcid:C:\\Users\\sanga\\OneDrive\\Desktop\\Aurora_2\\backend\\tmp\\1763828110274-full-70df8b1a-35ca-4299-89c7-e5d100308c99.enc"
+    },
+    "provider": "mock-nautilus",
+    "signature": "c24c2213f4c22d20a47664053429d231d58f931f207aa8d5299603260e95cf10"
+  },
+  "timestamp": 1763828110268
+}

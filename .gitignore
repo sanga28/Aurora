@@ -1,0 +1,11 @@
+# Node.js
+node_modules/
+.env
+dist/
+build/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store

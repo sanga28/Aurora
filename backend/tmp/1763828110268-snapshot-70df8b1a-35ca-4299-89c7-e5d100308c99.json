@@ -1,0 +1,18 @@
+{
+  "snapshot": {
+    "contractAddress": "0xDEADBEEF",
+    "bytecode": "0xdeadbeef",
+    "modules": [
+      {
+        "name": "transfer"
+      },
+      {
+        "name": "owner_manager"
+      }
+    ],
+    "owner": "0xADMIN",
+    "events": [],
+    "timestamp": 1763828110267
+  },
+  "note": "snapshot for scan"
+}
