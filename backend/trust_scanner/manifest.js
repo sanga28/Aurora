@@ -1,10 +1,6 @@
-// manifest.js
-const { uploadJSON } = require('./walrusClient');
+import { uploadJSON } from "./walrusClient.js";
 
-async function buildManifestAndUpload(manifestObj, filename = 'manifest.json') {
-  // optional: compute hash of manifest for on-chain use
+export async function buildManifestAndUpload(manifestObj, filename) {
   const res = await uploadJSON(manifestObj, filename);
   return res.cid || res;
 }
-
-module.exports = { buildManifestAndUpload };

@@ -1,17 +1,16 @@
-const crypto = require('crypto');
+// verify_attestation.js (ESM)
+import crypto from "crypto";
 
-const MOCK_ATTEST_KEY = process.env.ATTES_SIGNING_KEY || 'devattestkey';
+const MOCK_ATTEST_KEY = process.env.ATTES_SIGNING_KEY || "devattestkey";
 
-function verifyAttestation(attestation) {
+export function verifyAttestation(attestation) {
   const sig = attestation.signature;
-  const payload = Object.assign({}, attestation);
+  const payload = { ...attestation };
   delete payload.signature;
 
-  const h = crypto.createHmac('sha256', MOCK_ATTEST_KEY);
+  const h = crypto.createHmac("sha256", MOCK_ATTEST_KEY);
   h.update(JSON.stringify(payload));
-  const expected = h.digest('hex');
+  const expected = h.digest("hex");
 
   return sig === expected;
 }
-
-module.exports = { verifyAttestation };

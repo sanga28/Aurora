@@ -1,77 +1,85 @@
-// scanner.js
-const crypto = require('crypto');
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
+// scanner.js (ESM)
+import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
 
-const { uploadJSON, uploadBuffer } = require('./walrusClient');
-const { submitJob } = require('./nautilusClient');
-const { createPolicy } = require('./sealClient');
-const { analyzeSnapshot } = require('./analyzer');
-const { buildManifestAndUpload } = require('./manifest');
+import { uploadJSON, uploadBuffer } from "./walrusClient.js";
+import { submitJob } from "./nautilusClient.js";
+import { createPolicy } from "./sealClient.js";
+import { analyzeSnapshot } from "./analyzer.js";
+import { buildManifestAndUpload } from "./manifest.js";
 
 async function encryptBufferAesGcm(buf) {
   const key = crypto.randomBytes(32);
   const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
   const enc = Buffer.concat([cipher.update(buf), cipher.final()]);
   const tag = cipher.getAuthTag();
-  // return combined blob and key
-  const combined = Buffer.concat([iv, tag, enc]); // store iv(12)|tag(16)|ciphertext
+
+  const combined = Buffer.concat([iv, tag, enc]);
   return { combined, key };
 }
 
-/**
- * main entry
- * @param {Object} snapshot - contract snapshot from Team A
- * @param {Object} opts - { requesterWallet }
- */
-async function run(snapshot, opts = {}) {
+export async function run(snapshot, opts = {}) {
   const scanId = uuidv4();
   const timestamp = Date.now();
 
-  // 1) upload snapshot
-  const snapRes = await uploadJSON({ snapshot, note: 'snapshot for scan' }, `snapshot-${scanId}.json`);
-  const snapshotCID = snapRes.cid || snapRes.cid || snapRes.cid || snapRes; // adapt to mock or real
+  const snapRes = await uploadJSON({ snapshot }, `snapshot-${scanId}.json`);
+  const snapshotCID = snapRes.cid || snapRes;
 
-  // 2) analysis
   const { findings, trustScore } = analyzeSnapshot(snapshot);
 
-  // 3) build summary
   const summary = {
-    scanId, contract: snapshot.contractAddress || snapshot.address || null,
-    trustScore, findings, timestamp
+    scanId,
+    contract: snapshot.contractAddress || snapshot.address || null,
+    trustScore,
+    findings,
+    timestamp,
   };
+
   const summaryRes = await uploadJSON(summary, `summary-${scanId}.json`);
   const summaryCID = summaryRes.cid || summaryRes;
 
-  // 4) full report
-  const fullReport = { scanId, snapshot, findings, meta: { generatedBy: 'Aurora TrustScanner' } };
-  const fullStr = JSON.stringify(fullReport, null, 2);
-  const buf = Buffer.from(fullStr, 'utf8');
+  const fullReport = {
+    scanId,
+    snapshot,
+    findings,
+    meta: { generatedBy: "Aurora TrustScanner" },
+  };
 
-  // 5) encrypt full report and upload
+  const buf = Buffer.from(JSON.stringify(fullReport, null, 2), "utf8");
   const { combined, key } = await encryptBufferAesGcm(buf);
+
   const fullRes = await uploadBuffer(combined, `full-${scanId}.enc`);
   const fullCID = fullRes.cid || fullRes;
 
-  // 6) seal policy: store key with policy
-  const policyMeta = { allowedWallets: [opts.requesterWallet].filter(Boolean), allowAttestation: true };
-  const policy = await createPolicy(key, policyMeta);
-  const sealPolicyId = policy.policyId;
-
-  // 7) request Nautilus job + attestation (provide summaryCID & fullCID for traceability)
-  const jobSpec = { scanId, snapshotCID, summaryCID, fullCID, meta: { requester: opts.requesterWallet } };
-  const { attestation, outputs } = await submitJob({ ...jobSpec, summaryCID, fullCID });
-
-  // 8) build & upload manifest
-  const manifest = {
-    scanId, snapshotCID, summaryCID, fullCID, sealPolicyId,
-    trustScore, findings, attestation, timestamp
+  const policyMeta = {
+    allowedWallets: [opts.requesterWallet].filter(Boolean),
+    allowAttestation: true,
   };
 
-  const manifestCID = await buildManifestAndUpload(manifest, `manifest-${scanId}.json`);
+  const { policyId: sealPolicyId } = await createPolicy(key, policyMeta);
+
+  const jobSpec = { scanId, snapshotCID, summaryCID, fullCID };
+  const { attestation } = await submitJob(jobSpec);
+
+  const manifest = {
+    scanId,
+    snapshotCID,
+    summaryCID,
+    fullCID,
+    sealPolicyId,
+    trustScore,
+    findings,
+    attestation,
+    timestamp,
+  };
+
+  const manifestCID = await buildManifestAndUpload(
+    manifest,
+    `manifest-${scanId}.json`
+  );
 
   return { manifest, manifestCID };
 }
-
-module.exports = { run };
