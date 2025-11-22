@@ -1,32 +1,39 @@
-// sealClient.js (mock)
-const crypto = require('crypto');
-const { v4: uuidv4 } = require('uuid');
+// sealClient.js (ESM version)
+import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
-const policies = new Map(); // policyId -> { key: Buffer, allowed: { wallets: [], allowAttestedProviders: [] }, meta }
+// In-memory Seal policy registry (mock)
+const policies = new Map(); // policyId -> { key, meta }
 
-async function createPolicy(keyBuffer, policyMeta = {}) {
+export async function createPolicy(keyBuffer, policyMeta = {}) {
   const policyId = `policy:${uuidv4()}`;
-  policies.set(policyId, { key: keyBuffer, meta: policyMeta });
+
+  policies.set(policyId, {
+    key: keyBuffer,
+    meta: policyMeta,
+  });
+
   return { policyId };
 }
 
-async function requestKey(policyId, requester = {}) {
+export async function requestKey(policyId, requester = {}) {
   // requester = { walletAddress?: string, attestation?: {...} }
+
   const rec = policies.get(policyId);
-  if (!rec) throw new Error('policy not found');
+  if (!rec) throw new Error("policy not found");
 
   const allowedWallets = rec.meta.allowedWallets || [];
   const allowAttestation = rec.meta.allowAttestation || false;
 
+  // Allow by wallet
   if (requester.walletAddress && allowedWallets.includes(requester.walletAddress)) {
-    return { key: rec.key.toString('hex') };
+    return { key: rec.key.toString("hex") };
   }
+
+  // Allow by attestation
   if (requester.attestation && allowAttestation) {
-    // In real Seal, would verify attestation signature / provider allowlist
-    return { key: rec.key.toString('hex') };
+    return { key: rec.key.toString("hex") };
   }
 
-  throw new Error('not authorized to request key');
+  throw new Error("not authorized to request key");
 }
-
-module.exports = { createPolicy, requestKey };
