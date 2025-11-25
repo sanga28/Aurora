@@ -3,11 +3,6 @@
 **Aurora TrustScanner** is a blockchain security tool designed for the **Aptos ecosystem**. It allows users to check the trustworthiness of smart contracts, helping to detect potentially malicious or risky contracts before interacting with them. The project integrates a React-based frontend with a backend analysis engine, and optionally, on-chain logging via a Move module.
 
 ## Features
-<<<<<<< HEAD
-
-=======
- 
->>>>>>> 85ffe0da6c7618068a6517ca4fb223425ada78ee
 - **Contract Scanner**: Input any Aptos smart contract address and receive a trust score indicating its safety.
 - **Recent Activity Log**: Tracks the last few contracts checked for easy reference.
 - **Notifications**: Optional alerts when risky contracts are detected.
@@ -15,7 +10,6 @@
 - **Aptos Wallet Support**: Compatible with browser wallets like Petra or Martian (optional).
 
 ## Technology Stack
-
 - **Frontend**: React.js  
 - **Backend**: Node.js / Express (API for contract analysis)  
 - **Blockchain**: Aptos, Move module for on-chain data storage  
